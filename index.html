@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pearson IAL 2026 考试日历与导出</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
   :root {
@@ -15,13 +14,13 @@
     --text: #1a2332;
     --muted: #7a8899;
     --physics: #1a3f7a;
-    --physics-bg: rgba(26,63,122,0.10);
+    --physics-bg: rgba(26,63,122,0.15);
     --math: #dc2020;
-    --math-bg: rgba(220,32,32,0.10);
+    --math-bg: rgba(220,32,32,0.15);
     --economics: #c27d00;
-    --economics-bg: rgba(194,125,0,0.10);
+    --economics-bg: rgba(194,125,0,0.15);
     --accounting: #ea580c;
-    --accounting-bg: rgba(234,88,12,0.08);
+    --accounting-bg: rgba(234,88,12,0.15);
     --am: #b45309;
     --pm: #475569;
     --primary: #0284c7;
@@ -35,27 +34,15 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 0; /* 修改了 padding，交由内部容器控制 */
   }
 
-  /* 主应用容器 */
-  #app-wrapper {
-    padding: 40px 24px;
-    width: 100%;
-  }
+  #app-wrapper { padding: 40px 24px; width: 100%; max-width: 1200px; margin: 0 auto; }
 
   @media (max-width: 600px) {
     #app-wrapper { padding: 24px 12px; }
-    .stats-bar { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .stat-card { padding: 12px 8px; }
-    .stat-num { font-size: 24px; }
   }
 
-  header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-
+  header { text-align: center; margin-bottom: 32px; }
   header h1 {
     font-size: clamp(28px, 5vw, 48px);
     letter-spacing: -0.5px;
@@ -66,199 +53,101 @@
     margin-bottom: 8px;
     font-weight: bold;
   }
-
-  header p {
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 300;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
+  header p { color: var(--muted); font-size: 14px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
 
   .action-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 24px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(2, 132, 199, 0.2);
-    transition: all 0.2s ease;
+    background: var(--primary); color: white; border: none; padding: 12px 24px;
+    border-radius: 24px; font-size: 16px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 6px rgba(2, 132, 199, 0.2); transition: all 0.2s ease;
   }
-  .action-btn:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-  }
+  .action-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
 
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    margin-bottom: 40px;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-  }
-
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 40px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; }
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-  .calendar { max-width: 1200px; margin: 0 auto; }
+  .calendar { width: 100%; }
   .month-section { margin-bottom: 48px; }
-  .month-header {
-    font-size: 22px;
-    color: var(--muted);
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-    letter-spacing: 1px;
-    font-weight: bold;
-  }
+  .month-header { font-size: 22px; color: var(--text); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); letter-spacing: 1px; font-weight: bold; }
 
-  .calendar-scroll-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; 
-    border-radius: 16px;
-    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
-    padding-bottom: 10px; 
-  }
+  .calendar-scroll-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+  
+  .calendar-grid { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 1px; background: var(--border); border-radius: 12px; overflow: hidden; min-width: 650px; border: 1px solid var(--border); }
+  .day-header { background: #f8fafc; text-align: center; padding: 10px 4px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .day-cell { background: var(--surface); min-height: 120px; padding: 8px 6px; position: relative; }
+  .day-cell.empty { background: #fdfdfd; }
+  .day-num { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 8px; display: block; }
+  .day-cell.has-exam .day-num { color: var(--text); font-weight: 700; }
 
-  .calendar-scroll-wrapper::-webkit-scrollbar { height: 6px; }
-  .calendar-scroll-wrapper::-webkit-scrollbar-track { background: var(--bg); border-radius: 3px; }
-  .calendar-scroll-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(140px, 1fr));
-    gap: 2px;
-    background: var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    min-width: 700px; 
-  }
-
-  .day-header {
-    background: var(--surface);
-    text-align: center;
-    padding: 10px 4px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .day-cell {
-    background: var(--surface);
-    min-height: 120px;
-    padding: 8px 6px;
-    position: relative;
-    transition: background 0.2s;
-  }
-
-  .day-cell:hover { background: var(--surface2); }
-  .day-cell.empty { background: var(--bg); }
-
-  .day-num {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  .day-cell.has-exam .day-num {
-    color: var(--text);
-    font-weight: 700;
-  }
-
-  .exam-block {
-    border-radius: 6px;
-    padding: 6px;
-    margin-bottom: 4px;
-    font-size: 11px;
-    line-height: 1.3;
-    border-left: 3px solid;
-    cursor: default;
-  }
-
+  .exam-block { border-radius: 6px; padding: 6px; margin-bottom: 4px; font-size: 11px; line-height: 1.3; border-left: 3px solid; cursor: default; }
   .exam-block.physics { background: var(--physics-bg); border-color: var(--physics); color: #1a3f7a; }
   .exam-block.math { background: var(--math-bg); border-color: var(--math); color: #b91c1c; }
   .exam-block.economics { background: var(--economics-bg); border-color: var(--economics); color: #92580a; }
   .exam-block.accounting { background: var(--accounting-bg); border-color: var(--accounting); color: #c2410c; }
 
   .exam-name { font-weight: 600; display: block; margin-bottom: 2px; }
-  .exam-time { display: flex; align-items: center; gap: 4px; opacity: 0.8; }
-
-  .time-badge {
-    font-size: 9px;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
+  .exam-time { display: flex; align-items: center; gap: 4px; opacity: 0.9; }
+  .time-badge { font-size: 9px; padding: 2px 4px; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; }
   .time-badge.am-session { background: rgba(180,83,9,0.12); color: var(--am); }
   .time-badge.pm-session { background: rgba(71,85,105,0.12); color: var(--pm); }
-  .exam-duration { font-size: 9px; opacity: 0.7; }
+  .exam-duration { font-size: 9px; opacity: 0.8; }
 
   /* Modal 弹窗样式 */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-    z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);
-  }
-  .modal-content {
-    background: white; width: 90%; max-width: 600px; max-height: 85vh;
-    border-radius: 16px; padding: 24px; display: flex; flex-direction: column;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+  .modal-content { background: white; width: 90%; max-width: 600px; max-height: 85vh; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
   .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
   .modal-header h2 { font-size: 20px; color: var(--text); }
   .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
   .exam-list-container { overflow-y: auto; flex: 1; margin-bottom: 16px; padding-right: 8px; }
-  
-  .exam-checkbox-item {
-    display: flex; align-items: center; padding: 10px; border: 1px solid var(--border);
-    border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: background 0.2s;
-  }
-  .exam-checkbox-item:hover { background: var(--surface2); }
+  .exam-checkbox-item { display: flex; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
   .exam-checkbox-item input { margin-right: 12px; width: 18px; height: 18px; cursor: pointer; }
   .exam-meta { flex: 1; }
   .exam-meta-title { font-weight: 600; font-size: 14px; margin-bottom: 2px;}
   .exam-meta-details { font-size: 12px; color: var(--muted); }
-  
   .modal-footer { display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
   .btn-outline { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
   .btn-primary { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 
-  /* PDF 导出专用容器：不再使用绝对定位 */
-  #pdf-export-container {
-    display: none; 
-    width: 1000px; 
-    background: white; 
-    padding: 40px; 
-    color: black;
-    margin: 0;
+  /* === 打印专用 CSS (关键) === */
+  #print-container { display: none; }
+  
+  @media print {
+    /* 强迫浏览器打印彩色背景和边框 */
+    * { 
+      -webkit-print-color-adjust: exact !important; 
+      print-color-adjust: exact !important; 
+    }
+    
+    @page { margin: 10mm; size: A4 portrait; }
+    
+    body { background: white; }
+    
+    /* 隐藏所有网页操作元素 */
+    #app-wrapper, .modal-overlay { display: none !important; }
+    
+    /* 显示打印模板 */
+    #print-container { 
+      display: block !important; 
+      width: 100%;
+      color: black;
+    }
+    
+    /* 表格排版 */
+    .pdf-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #000; }
+    .pdf-subtitle { font-size: 18px; font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid #ccc; padding-bottom: 6px; margin-top: 24px; color: #000; }
+    
+    .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+    .pdf-table th, .pdf-table td { border: 1px solid #aaa; padding: 10px; text-align: left; }
+    .pdf-table th { background: #f0f0f0; font-weight: bold; }
+    .pdf-table tr { page-break-inside: avoid; }
+    
+    /* 日历打印排版：强行解除横向滚动，适应页面宽度 */
+    .calendar-scroll-wrapper { overflow: visible !important; box-shadow: none !important; }
+    .calendar-grid { min-width: 100% !important; border: 1px solid #ccc; }
+    .month-section { page-break-inside: avoid; margin-bottom: 30px; }
+    
+    .page-break { page-break-before: always; }
   }
-  .pdf-title { text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 24px; color: #1a2332; }
-  .pdf-subtitle { font-size: 20px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid #dde3ea; padding-bottom: 8px; margin-top: 32px; color: #1a2332; }
-  
-  .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 14px; }
-  .pdf-table th, .pdf-table td { border: 1px solid #dde3ea; padding: 12px; text-align: left; }
-  .pdf-table th { background: #f8fafc; font-weight: bold; }
-  
 </style>
 </head>
 <body>
@@ -293,12 +182,12 @@
     <div class="exam-list-container" id="examCheckboxes"></div>
     <div class="modal-footer">
       <button class="btn-outline" onclick="closeModal()">取消</button>
-      <button class="btn-primary" onclick="generatePDF()">确认并生成 PDF</button>
+      <button class="btn-primary" onclick="generatePDF()">确认生成 PDF</button>
     </div>
   </div>
 </div>
 
-<div id="pdf-export-container">
+<div id="print-container">
   <div class="pdf-title">My IAL 2026 Exam Schedule</div>
   
   <div class="pdf-subtitle">Part 1: 考试信息列表 (List View)</div>
@@ -312,11 +201,11 @@
         <th>时长 (Duration)</th>
       </tr>
     </thead>
-    <tbody id="pdf-table-body"></tbody>
+    <tbody id="print-table-body"></tbody>
   </table>
 
-  <div class="pdf-subtitle" style="page-break-before: always;">Part 2: 考试日历 (Calendar View)</div>
-  <div id="pdf-calendar-container" class="calendar"></div>
+  <div class="pdf-subtitle page-break">Part 2: 考试日历 (Calendar View)</div>
+  <div id="print-calendar-container" class="calendar"></div>
 </div>
 
 <script>
@@ -409,7 +298,6 @@ function buildMonth(year, month, title, dataList) {
   });
 
   html += `</div></div></div>`;
-  
   if (!hasAnyExamInMonth && dataList.length !== allExams.length) return '';
   return html;
 }
@@ -423,9 +311,7 @@ renderMainCalendar();
 function openModal() {
   const container = document.getElementById('examCheckboxes');
   container.innerHTML = ''; 
-  
   const sortedExams = [...allExams].sort((a, b) => new Date(a.date) - new Date(b.date));
-  
   sortedExams.forEach((exam) => {
     container.innerHTML += `
       <label class="exam-checkbox-item">
@@ -437,7 +323,6 @@ function openModal() {
       </label>
     `;
   });
-  
   document.getElementById('examModal').style.display = 'flex';
 }
 
@@ -450,24 +335,22 @@ function selectAll(check) {
   checkboxes.forEach(cb => cb.checked = check);
 }
 
+// === 全新生成逻辑：抛弃截图，直接调用系统打印 ===
 function generatePDF() {
   const selectedCodes = Array.from(document.querySelectorAll('.exam-selector:checked')).map(cb => cb.value);
-  
   if (selectedCodes.length === 0) {
     alert("请至少选择一门考试！");
     return;
   }
-  
   const selectedExams = allExams.filter(exam => selectedCodes.includes(exam.code));
   
-  // 1. 注入数据到表格
-  const tbody = document.getElementById('pdf-table-body');
+  // 1. 注入数据到打印表格
+  const tbody = document.getElementById('print-table-body');
   tbody.innerHTML = '';
   selectedExams.sort((a, b) => {
     if (a.date === b.date) return a.time.localeCompare(b.time);
     return new Date(a.date) - new Date(b.date);
   });
-  
   selectedExams.forEach(exam => {
     tbody.innerHTML += `
       <tr>
@@ -480,63 +363,18 @@ function generatePDF() {
     `;
   });
   
-  // 2. 注入数据到日历
-  const pdfCal = document.getElementById('pdf-calendar-container');
-  pdfCal.innerHTML = buildMonth(2026, 4, '2026年 5月', selectedExams) + buildMonth(2026, 5, '2026年 6月', selectedExams);
+  // 2. 注入数据到打印日历
+  const printCal = document.getElementById('print-calendar-container');
+  printCal.innerHTML = buildMonth(2026, 4, '2026年 5月', selectedExams) + buildMonth(2026, 5, '2026年 6月', selectedExams);
   
+  // 关闭弹窗
   closeModal();
   
-  const btn = document.querySelector('.action-btn');
-  const originalText = btn.innerText;
-  btn.innerText = "⏳ 正在生成 PDF，请稍候...";
-  btn.style.opacity = '0.7';
-  
-  const element = document.getElementById('pdf-export-container');
-  const appWrapper = document.getElementById('app-wrapper');
-  
-  // 保存当前滚动位置，等下变回来的时候不用再重新往下滑
-  const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-  // 终极修复：彻底隐藏原有应用界面，仅显示打印界面，不叠加，不使用 absolute！
-  appWrapper.style.display = 'none';
-  element.style.display = 'block';
-  
-  // 强行滚动到页面最顶部 (0,0) 防止 html2canvas 算错坐标
-  window.scrollTo(0, 0);
-
+  // 3. 唤起原生打印，CSS 会自动隐藏主界面，只显示打印模板
+  // 给一点延迟让 DOM 渲染完毕
   setTimeout(() => {
-    const opt = {
-      margin:       10, 
-      filename:     'My_IAL_2026_Schedule.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { 
-          scale: 2, 
-          useCORS: true,
-          windowWidth: 1000, 
-          scrollY: 0,
-          scrollX: 0
-      }, 
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(element).save().then(() => {
-      // 截图成功后，全部变回原样
-      element.style.display = 'none';
-      appWrapper.style.display = 'block';
-      window.scrollTo(0, scrollTop); // 恢复之前的滚动高度
-      
-      btn.innerText = originalText;
-      btn.style.opacity = '1';
-    }).catch(err => {
-      // 如果报错，也要记得变回来
-      element.style.display = 'none';
-      appWrapper.style.display = 'block';
-      window.scrollTo(0, scrollTop);
-      btn.innerText = originalText;
-      btn.style.opacity = '1';
-      alert("生成PDF时遇到问题：" + err);
-    });
-  }, 500); 
+    window.print();
+  }, 300);
 }
 </script>
 

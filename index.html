@@ -35,11 +35,17 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    padding: 0; /* 修改了 padding，交由内部容器控制 */
+  }
+
+  /* 主应用容器 */
+  #app-wrapper {
     padding: 40px 24px;
+    width: 100%;
   }
 
   @media (max-width: 600px) {
-    body { padding: 24px 12px; }
+    #app-wrapper { padding: 24px 12px; }
     .stats-bar { grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .stat-card { padding: 12px 8px; }
     .stat-num { font-size: 24px; }
@@ -237,11 +243,14 @@
   .btn-outline { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
   .btn-primary { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 
-  /* PDF 导出专用容器 - 默认隐藏，不使用绝对负坐标 */
+  /* PDF 导出专用容器：不再使用绝对定位 */
   #pdf-export-container {
     display: none; 
     width: 1000px; 
-    background: white; padding: 40px; color: black;
+    background: white; 
+    padding: 40px; 
+    color: black;
+    margin: 0;
   }
   .pdf-title { text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 24px; color: #1a2332; }
   .pdf-subtitle { font-size: 20px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid #dde3ea; padding-bottom: 8px; margin-top: 32px; color: #1a2332; }
@@ -254,20 +263,22 @@
 </head>
 <body>
 
-<header>
-  <h1>Pearson IAL 2026</h1>
-  <p>5月 / 6月 大考时间表</p>
-  <button class="action-btn" onclick="openModal()">+ 生成专属考试表格 / PDF</button>
-</header>
+<div id="app-wrapper">
+  <header>
+    <h1>Pearson IAL 2026</h1>
+    <p>5月 / 6月 大考时间表</p>
+    <button class="action-btn" onclick="openModal()">+ 生成专属考试表格 / PDF</button>
+  </header>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:var(--physics)"></div> 物理</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--math)"></div> 数学</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--economics)"></div> 经济学</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--accounting)"></div> 会计学</div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--physics)"></div> 物理</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--math)"></div> 数学</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--economics)"></div> 经济学</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accounting)"></div> 会计学</div>
+  </div>
+
+  <div class="calendar" id="main-calendar"></div>
 </div>
-
-<div class="calendar" id="main-calendar"></div>
 
 <div class="modal-overlay" id="examModal">
   <div class="modal-content">
@@ -279,8 +290,7 @@
         <button class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="selectAll(true)">全选</button>
         <button class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="selectAll(false)">清空</button>
     </div>
-    <div class="exam-list-container" id="examCheckboxes">
-      </div>
+    <div class="exam-list-container" id="examCheckboxes"></div>
     <div class="modal-footer">
       <button class="btn-outline" onclick="closeModal()">取消</button>
       <button class="btn-primary" onclick="generatePDF()">确认并生成 PDF</button>
@@ -302,8 +312,7 @@
         <th>时长 (Duration)</th>
       </tr>
     </thead>
-    <tbody id="pdf-table-body">
-      </tbody>
+    <tbody id="pdf-table-body"></tbody>
   </table>
 
   <div class="pdf-subtitle" style="page-break-before: always;">Part 2: 考试日历 (Calendar View)</div>
@@ -311,7 +320,6 @@
 </div>
 
 <script>
-// 完整考试数据
 const allExams = [
   { date: '2026-05-05', subject: 'accounting', code: 'WAC11A', name: 'Accounting U1', time: '13:00', duration: '3h 00m' },
   { date: '2026-05-07', subject: 'math', code: 'WME01A', name: 'M1: Mechanics 1', time: '13:00', duration: '1h 30m' },
@@ -452,7 +460,7 @@ function generatePDF() {
   
   const selectedExams = allExams.filter(exam => selectedCodes.includes(exam.code));
   
-  // 渲染表格
+  // 1. 注入数据到表格
   const tbody = document.getElementById('pdf-table-body');
   tbody.innerHTML = '';
   selectedExams.sort((a, b) => {
@@ -472,7 +480,7 @@ function generatePDF() {
     `;
   });
   
-  // 渲染日历
+  // 2. 注入数据到日历
   const pdfCal = document.getElementById('pdf-calendar-container');
   pdfCal.innerHTML = buildMonth(2026, 4, '2026年 5月', selectedExams) + buildMonth(2026, 5, '2026年 6月', selectedExams);
   
@@ -484,33 +492,51 @@ function generatePDF() {
   btn.style.opacity = '0.7';
   
   const element = document.getElementById('pdf-export-container');
+  const appWrapper = document.getElementById('app-wrapper');
   
-  // 关键修复：临时将容器放到可视流的最底层，避免截图捕捉到负坐标导致白屏
+  // 保存当前滚动位置，等下变回来的时候不用再重新往下滑
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+  // 终极修复：彻底隐藏原有应用界面，仅显示打印界面，不叠加，不使用 absolute！
+  appWrapper.style.display = 'none';
   element.style.display = 'block';
-  element.style.position = 'absolute';
-  element.style.left = '0';
-  element.style.top = '0';
-  element.style.zIndex = '-9999';
+  
+  // 强行滚动到页面最顶部 (0,0) 防止 html2canvas 算错坐标
+  window.scrollTo(0, 0);
 
-  const opt = {
-    margin:       10, 
-    filename:     'My_IAL_2026_Schedule.pdf',
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { 
-        scale: 2, 
-        useCORS: true,
-        windowWidth: 1000 // 关键修复2：强制渲染宽度，防止手机端变窄导致错位
-    }, 
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+  setTimeout(() => {
+    const opt = {
+      margin:       10, 
+      filename:     'My_IAL_2026_Schedule.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { 
+          scale: 2, 
+          useCORS: true,
+          windowWidth: 1000, 
+          scrollY: 0,
+          scrollX: 0
+      }, 
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
-  html2pdf().set(opt).from(element).save().then(() => {
-    btn.innerText = originalText;
-    btn.style.opacity = '1';
-    
-    // 生成完毕后重新隐藏
-    element.style.display = 'none';
-  });
+    html2pdf().set(opt).from(element).save().then(() => {
+      // 截图成功后，全部变回原样
+      element.style.display = 'none';
+      appWrapper.style.display = 'block';
+      window.scrollTo(0, scrollTop); // 恢复之前的滚动高度
+      
+      btn.innerText = originalText;
+      btn.style.opacity = '1';
+    }).catch(err => {
+      // 如果报错，也要记得变回来
+      element.style.display = 'none';
+      appWrapper.style.display = 'block';
+      window.scrollTo(0, scrollTop);
+      btn.innerText = originalText;
+      btn.style.opacity = '1';
+      alert("生成PDF时遇到问题：" + err);
+    });
+  }, 500); 
 }
 </script>
 

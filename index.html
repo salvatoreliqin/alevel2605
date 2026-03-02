@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)file:///Users/smartsushi/Downloads/pearson-ial-2026-calendar_1.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pearson IAL 2026 考试日历</title>
+<link href="./Pearson IAL 2026 考试日历_files/css2" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #f8fafc;
+    --border: #dde3ea;
+    --text: #1a2332;
+    --muted: #7a8899;
+    --physics: #1a3f7a;
+    --physics-bg: rgba(26,63,122,0.10);
+    --math: #dc2020;
+    --math-bg: rgba(220,32,32,0.10);
+    --economics: #c27d00;
+    --economics-bg: rgba(194,125,0,0.10);
+    --accounting: #ea580c;
+    --accounting-bg: rgba(234,88,12,0.08);
+    --am: #b45309;
+    --pm: #475569;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #1a2332 0%, #dc2020 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .calendar {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .month-section {
+    margin-bottom: 48px;
+  }
+
+  .month-header {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 1px;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+
+  .day-header {
+    background: var(--surface);
+    text-align: center;
+    padding: 10px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .day-cell {
+    background: var(--surface);
+    min-height: 120px;
+    padding: 8px 6px;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .day-cell:hover {
+    background: var(--surface2);
+  }
+
+  .day-cell.empty {
+    background: var(--bg);
+  }
+
+  .day-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .day-cell.has-exam .day-num {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .exam-block {
+    border-radius: 6px;
+    padding: 4px 6px;
+    margin-bottom: 3px;
+    font-size: 10.5px;
+    line-height: 1.3;
+    border-left: 3px solid;
+    cursor: default;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+
+  .exam-block:hover {
+    transform: translateX(2px);
+    opacity: 0.9;
+  }
+
+  .exam-block.physics {
+    background: var(--physics-bg);
+    border-color: var(--physics);
+    color: #1a3f7a;
+  }
+
+  .exam-block.math {
+    background: var(--math-bg);
+    border-color: var(--math);
+    color: #b91c1c;
+  }
+
+  .exam-block.economics {
+    background: var(--economics-bg);
+    border-color: var(--economics);
+    color: #92580a;
+  }
+
+  .exam-block.accounting {
+    background: var(--accounting-bg);
+    border-color: var(--accounting);
+    color: #c2410c;
+  }
+
+  .exam-name {
+    font-weight: 600;
+    display: block;
+  }
+
+  .exam-time {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 2px;
+    opacity: 0.8;
+  }
+
+  .time-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .time-badge.am-session {
+    background: rgba(180,83,9,0.12);
+    color: var(--am);
+  }
+
+  .time-badge.pm-session {
+    background: rgba(71,85,105,0.12);
+    color: var(--pm);
+  }
+
+  .exam-duration {
+    font-size: 9px;
+    opacity: 0.7;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pearson IAL 2026</h1>
+  <p>5月 / 6月 大考时间表</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--physics)"></div> 物理</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--math)"></div> 数学</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--economics)"></div> 经济学</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accounting)"></div> 会计学</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--physics)">6</div>
+    <div class="stat-label">物理科目</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--math)">13</div>
+    <div class="stat-label">数学科目</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--economics)">4</div>
+    <div class="stat-label">经济学科目</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--accounting)">2</div>
+    <div class="stat-label">会计学科目</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:#1a2332">19</div>
+    <div class="stat-label">考试天数</div>
+  </div>
+</div>
+
+<div class="calendar" id="calendar"><div class="month-section">
+    <div class="month-header">2026年 5月</div>
+    <div class="calendar-grid"><div class="day-header">日</div><div class="day-header">一</div><div class="day-header">二</div><div class="day-header">三</div><div class="day-header">四</div><div class="day-header">五</div><div class="day-header">六</div><div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell ">
+      <span class="day-num">1</span></div><div class="day-cell ">
+      <span class="day-num">2</span></div><div class="day-cell ">
+      <span class="day-num">3</span></div><div class="day-cell ">
+      <span class="day-num">4</span></div><div class="day-cell has-exam">
+      <span class="day-num">5</span><div class="exam-block accounting">
+        <span class="exam-name">Accounting U1</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">3h 00m</span>
+        </div>
+      </div></div><div class="day-cell ">
+      <span class="day-num">6</span></div><div class="day-cell has-exam">
+      <span class="day-num">7</span><div class="exam-block math">
+        <span class="exam-name">M1: Mechanics 1</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div><div class="exam-block economics">
+        <span class="exam-name">Econ U1: Markets</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 45m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">8</span><div class="exam-block math">
+        <span class="exam-name">P1: Pure Maths 1</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div><div class="exam-block physics">
+        <span class="exam-name">Phys U1: Mechanics</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell ">
+      <span class="day-num">9</span></div><div class="day-cell ">
+      <span class="day-num">10</span></div><div class="day-cell ">
+      <span class="day-num">11</span></div><div class="day-cell has-exam">
+      <span class="day-num">12</span><div class="exam-block math">
+        <span class="exam-name">P2: Pure Maths 2</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">13</span><div class="exam-block economics">
+        <span class="exam-name">Econ U2: Macro</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 45m</span>
+        </div>
+      </div><div class="exam-block physics">
+        <span class="exam-name">Phys U2: Waves &amp; Elec</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">14</span><div class="exam-block math">
+        <span class="exam-name">D1: Decision Maths 1</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell ">
+      <span class="day-num">15</span></div><div class="day-cell ">
+      <span class="day-num">16</span></div><div class="day-cell ">
+      <span class="day-num">17</span></div><div class="day-cell has-exam">
+      <span class="day-num">18</span><div class="exam-block physics">
+        <span class="exam-name">Phys U3: Practical I</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 20m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">19</span><div class="exam-block math">
+        <span class="exam-name">S1: Statistics 1</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">20</span><div class="exam-block accounting">
+        <span class="exam-name">Accounting U2</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">3h 00m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">21</span><div class="exam-block economics">
+        <span class="exam-name">Econ U3: Business</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">2h 00m</span>
+        </div>
+      </div><div class="exam-block math">
+        <span class="exam-name">FP1: Further Pure 1</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell ">
+      <span class="day-num">22</span></div><div class="day-cell ">
+      <span class="day-num">23</span></div><div class="day-cell ">
+      <span class="day-num">24</span></div><div class="day-cell ">
+      <span class="day-num">25</span></div><div class="day-cell ">
+      <span class="day-num">26</span></div><div class="day-cell ">
+      <span class="day-num">27</span></div><div class="day-cell ">
+      <span class="day-num">28</span></div><div class="day-cell ">
+      <span class="day-num">29</span></div><div class="day-cell ">
+      <span class="day-num">30</span></div><div class="day-cell ">
+      <span class="day-num">31</span></div></div></div><div class="month-section">
+    <div class="month-header">2026年 6月</div>
+    <div class="calendar-grid"><div class="day-header">日</div><div class="day-header">一</div><div class="day-header">二</div><div class="day-header">三</div><div class="day-header">四</div><div class="day-header">五</div><div class="day-header">六</div><div class="day-cell empty"></div><div class="day-cell has-exam">
+      <span class="day-num">1</span><div class="exam-block physics">
+        <span class="exam-name">Phys U4: Fields</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 45m</span>
+        </div>
+      </div><div class="exam-block math">
+        <span class="exam-name">FP2: Further Pure 2</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">2</span><div class="exam-block math">
+        <span class="exam-name">P3: Pure Maths 3</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">3</span><div class="exam-block math">
+        <span class="exam-name">M2: Mechanics 2</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">4</span><div class="exam-block economics">
+        <span class="exam-name">Econ U4: Global Econ</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">2h 00m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">5</span><div class="exam-block physics">
+        <span class="exam-name">Phys U5: Thermo</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 45m</span>
+        </div>
+      </div><div class="exam-block math">
+        <span class="exam-name">S2: Statistics 2</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell ">
+      <span class="day-num">6</span></div><div class="day-cell ">
+      <span class="day-num">7</span></div><div class="day-cell ">
+      <span class="day-num">8</span></div><div class="day-cell has-exam">
+      <span class="day-num">9</span><div class="exam-block math">
+        <span class="exam-name">P4: Pure Maths 4</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">10</span><div class="exam-block physics">
+        <span class="exam-name">Phys U6: Practical II</span>
+        <div class="exam-time">
+          <span class="time-badge am-session">13:00</span>
+          <span class="exam-duration">1h 20m</span>
+        </div>
+      </div><div class="exam-block math">
+        <span class="exam-name">FP3: Further Pure 3</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">11</span><div class="exam-block math">
+        <span class="exam-name">M3: Mechanics 3</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell has-exam">
+      <span class="day-num">12</span><div class="exam-block math">
+        <span class="exam-name">S3: Statistics 3</span>
+        <div class="exam-time">
+          <span class="time-badge pm-session">16:00</span>
+          <span class="exam-duration">1h 30m</span>
+        </div>
+      </div></div><div class="day-cell ">
+      <span class="day-num">13</span></div><div class="day-cell ">
+      <span class="day-num">14</span></div><div class="day-cell ">
+      <span class="day-num">15</span></div><div class="day-cell ">
+      <span class="day-num">16</span></div><div class="day-cell ">
+      <span class="day-num">17</span></div><div class="day-cell ">
+      <span class="day-num">18</span></div><div class="day-cell ">
+      <span class="day-num">19</span></div><div class="day-cell ">
+      <span class="day-num">20</span></div><div class="day-cell ">
+      <span class="day-num">21</span></div><div class="day-cell ">
+      <span class="day-num">22</span></div><div class="day-cell ">
+      <span class="day-num">23</span></div><div class="day-cell ">
+      <span class="day-num">24</span></div><div class="day-cell ">
+      <span class="day-num">25</span></div><div class="day-cell ">
+      <span class="day-num">26</span></div><div class="day-cell ">
+      <span class="day-num">27</span></div><div class="day-cell ">
+      <span class="day-num">28</span></div><div class="day-cell ">
+      <span class="day-num">29</span></div><div class="day-cell ">
+      <span class="day-num">30</span></div></div></div></div>
+
+<script>
+const exams = [
+  // May 2026
+  { date: '2026-05-05', subject: 'accounting', code: 'WAC11A', name: 'Accounting U1', time: '13:00', duration: '3h 00m' },
+  { date: '2026-05-07', subject: 'math', code: 'WME01A', name: 'M1: Mechanics 1', time: '13:00', duration: '1h 30m' },
+  { date: '2026-05-07', subject: 'economics', code: 'WEC11A', name: 'Econ U1: Markets', time: '16:00', duration: '1h 45m' },
+  { date: '2026-05-08', subject: 'physics', code: 'WPH11A', name: 'Phys U1: Mechanics', time: '16:00', duration: '1h 30m' },
+  { date: '2026-05-08', subject: 'math', code: 'WMA11A', name: 'P1: Pure Maths 1', time: '13:00', duration: '1h 30m' },
+  { date: '2026-05-12', subject: 'math', code: 'WMA12A', name: 'P2: Pure Maths 2', time: '13:00', duration: '1h 30m' },
+  { date: '2026-05-13', subject: 'physics', code: 'WPH12A', name: 'Phys U2: Waves & Elec', time: '16:00', duration: '1h 30m' },
+  { date: '2026-05-13', subject: 'economics', code: 'WEC12A', name: 'Econ U2: Macro', time: '13:00', duration: '1h 45m' },
+  { date: '2026-05-14', subject: 'math', code: 'WDM11A', name: 'D1: Decision Maths 1', time: '13:00', duration: '1h 30m' },
+  { date: '2026-05-18', subject: 'physics', code: 'WPH13A', name: 'Phys U3: Practical I', time: '13:00', duration: '1h 20m' },
+  { date: '2026-05-19', subject: 'math', code: 'WST01A', name: 'S1: Statistics 1', time: '13:00', duration: '1h 30m' },
+  { date: '2026-05-20', subject: 'accounting', code: 'WAC12A', name: 'Accounting U2', time: '13:00', duration: '3h 00m' },
+  { date: '2026-05-21', subject: 'math', code: 'WFM01A', name: 'FP1: Further Pure 1', time: '16:00', duration: '1h 30m' },
+  { date: '2026-05-21', subject: 'economics', code: 'WEC13A', name: 'Econ U3: Business', time: '13:00', duration: '2h 00m' },
+  // June 2026
+  { date: '2026-06-01', subject: 'physics', code: 'WPH14A', name: 'Phys U4: Fields', time: '13:00', duration: '1h 45m' },
+  { date: '2026-06-01', subject: 'math', code: 'WFM02A', name: 'FP2: Further Pure 2', time: '16:00', duration: '1h 30m' },
+  { date: '2026-06-02', subject: 'math', code: 'WMA13A', name: 'P3: Pure Maths 3', time: '13:00', duration: '1h 30m' },
+  { date: '2026-06-03', subject: 'math', code: 'WME02A', name: 'M2: Mechanics 2', time: '16:00', duration: '1h 30m' },
+  { date: '2026-06-04', subject: 'economics', code: 'WEC14A', name: 'Econ U4: Global Econ', time: '16:00', duration: '2h 00m' },
+  { date: '2026-06-05', subject: 'physics', code: 'WPH15A', name: 'Phys U5: Thermo', time: '13:00', duration: '1h 45m' },
+  { date: '2026-06-05', subject: 'math', code: 'WST02A', name: 'S2: Statistics 2', time: '16:00', duration: '1h 30m' },
+  { date: '2026-06-09', subject: 'math', code: 'WMA14A', name: 'P4: Pure Maths 4', time: '13:00', duration: '1h 30m' },
+  { date: '2026-06-10', subject: 'physics', code: 'WPH16A', name: 'Phys U6: Practical II', time: '13:00', duration: '1h 20m' },
+  { date: '2026-06-10', subject: 'math', code: 'WFM03A', name: 'FP3: Further Pure 3', time: '16:00', duration: '1h 30m' },
+  { date: '2026-06-11', subject: 'math', code: 'WME03A', name: 'M3: Mechanics 3', time: '16:00', duration: '1h 30m' },
+  { date: '2026-06-12', subject: 'math', code: 'WST03A', name: 'S3: Statistics 3', time: '16:00', duration: '1h 30m' },
+];
+
+function buildMonth(year, month, title) {
+  const examsByDate = {};
+  exams.forEach(e => {
+    const d = new Date(e.date);
+    if (d.getFullYear() === year && d.getMonth() === month) {
+      const key = d.getDate();
+      if (!examsByDate[key]) examsByDate[key] = [];
+      examsByDate[key].push(e);
+    }
+  });
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const days = ['日','一','二','三','四','五','六'];
+
+  let html = `<div class="month-section">
+    <div class="month-header">${title}</div>
+    <div class="calendar-grid">`;
+
+  days.forEach(d => html += `<div class="day-header">${d}</div>`);
+
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div class="day-cell empty"></div>`;
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayExams = examsByDate[day] || [];
+    html += `<div class="day-cell ${dayExams.length ? 'has-exam' : ''}">
+      <span class="day-num">${day}</span>`;
+    
+    // Sort by time
+    dayExams.sort((a, b) => a.time.localeCompare(b.time));
+
+    dayExams.forEach(e => {
+      const isPM = e.time === '16:00';
+      html += `<div class="exam-block ${e.subject}">
+        <span class="exam-name">${e.name}</span>
+        <div class="exam-time">
+          <span class="time-badge ${isPM ? 'pm-session' : 'am-session'}">${e.time}</span>
+          <span class="exam-duration">${e.duration}</span>
+        </div>
+      </div>`;
+    });
+
+    html += `</div>`;
+  }
+
+  html += `</div></div>`;
+  return html;
+}
+
+const cal = document.getElementById('calendar');
+cal.innerHTML = buildMonth(2026, 4, '2026年 5月') + buildMonth(2026, 5, '2026年 6月');
+
+// fix stats - count unique exam days
+const uniqueDays = new Set(exams.map(e => e.date));
+document.querySelectorAll('.stat-num')[4].textContent = uniqueDays.size;
+document.querySelectorAll('.stat-num')[4].style.color = '#1a2332';
+</script>
+
+
+</body></html>

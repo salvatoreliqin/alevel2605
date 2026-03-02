@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<!-- saved from url=(0067)file:///Users/smartsushi/Downloads/pearson-ial-2026-calendar_3.html -->
-<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pearson IAL 2026 考试日历</title>
-<link href="./Pearson IAL 2026 考试日历_files/css2" rel="stylesheet">
+<title>Pearson IAL 2026 考试日历与导出</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <style>
   :root {
     --bg: #f0f4f8;
@@ -23,17 +24,18 @@
     --accounting-bg: rgba(234,88,12,0.08);
     --am: #b45309;
     --pm: #475569;
+    --primary: #0284c7;
+    --primary-hover: #0369a1;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     padding: 40px 24px;
-    overflow-x: hidden;
   }
 
   @media (max-width: 600px) {
@@ -45,11 +47,10 @@
 
   header {
     text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 32px;
   }
 
   header h1 {
-    font-family: 'DM Serif Display', serif;
     font-size: clamp(28px, 5vw, 48px);
     letter-spacing: -0.5px;
     background: linear-gradient(135deg, #1a2332 0%, #dc2020 100%);
@@ -57,6 +58,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 8px;
+    font-weight: bold;
   }
 
   header p {
@@ -65,6 +67,24 @@
     font-weight: 300;
     letter-spacing: 2px;
     text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .action-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(2, 132, 199, 0.2);
+    transition: all 0.2s ease;
+  }
+  .action-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
   }
 
   .legend {
@@ -87,65 +107,48 @@
     font-weight: 500;
   }
 
-  .legend-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-  .calendar {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .month-section {
-    margin-bottom: 48px;
-  }
-
+  .calendar { max-width: 1200px; margin: 0 auto; }
+  .month-section { margin-bottom: 48px; }
   .month-header {
-    font-family: 'DM Serif Display', serif;
     font-size: 22px;
     color: var(--muted);
     margin-bottom: 16px;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
     letter-spacing: 1px;
+    font-weight: bold;
   }
 
   .calendar-scroll-wrapper {
+    width: 100%;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; 
     border-radius: 16px;
     box-shadow: 0 1px 8px rgba(0,0,0,0.06);
-    padding-bottom: 4px;
+    padding-bottom: 10px; 
   }
 
-  .calendar-scroll-wrapper::-webkit-scrollbar {
-    height: 4px;
-  }
-  .calendar-scroll-wrapper::-webkit-scrollbar-track {
-    background: var(--bg);
-  }
-  .calendar-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 2px;
-  }
+  .calendar-scroll-wrapper::-webkit-scrollbar { height: 6px; }
+  .calendar-scroll-wrapper::-webkit-scrollbar-track { background: var(--bg); border-radius: 3px; }
+  .calendar-scroll-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
   .calendar-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(130px, 1fr));
+    grid-template-columns: repeat(5, minmax(140px, 1fr));
     gap: 2px;
     background: var(--border);
     border-radius: 16px;
     overflow: hidden;
-    min-width: 500px;
+    min-width: 700px; 
   }
 
   .day-header {
     background: var(--surface);
     text-align: center;
     padding: 10px 4px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -160,19 +163,14 @@
     transition: background 0.2s;
   }
 
-  .day-cell:hover {
-    background: var(--surface2);
-  }
-
-  .day-cell.empty {
-    background: var(--bg);
-  }
+  .day-cell:hover { background: var(--surface2); }
+  .day-cell.empty { background: var(--bg); }
 
   .day-num {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--muted);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     display: block;
   }
 
@@ -183,109 +181,75 @@
 
   .exam-block {
     border-radius: 6px;
-    padding: 4px 6px;
-    margin-bottom: 3px;
-    font-size: 10.5px;
+    padding: 6px;
+    margin-bottom: 4px;
+    font-size: 11px;
     line-height: 1.3;
     border-left: 3px solid;
     cursor: default;
-    transition: transform 0.15s, opacity 0.15s;
   }
 
-  .exam-block:hover {
-    transform: translateX(2px);
-    opacity: 0.9;
-  }
+  .exam-block.physics { background: var(--physics-bg); border-color: var(--physics); color: #1a3f7a; }
+  .exam-block.math { background: var(--math-bg); border-color: var(--math); color: #b91c1c; }
+  .exam-block.economics { background: var(--economics-bg); border-color: var(--economics); color: #92580a; }
+  .exam-block.accounting { background: var(--accounting-bg); border-color: var(--accounting); color: #c2410c; }
 
-  .exam-block.physics {
-    background: var(--physics-bg);
-    border-color: var(--physics);
-    color: #1a3f7a;
-  }
-
-  .exam-block.math {
-    background: var(--math-bg);
-    border-color: var(--math);
-    color: #b91c1c;
-  }
-
-  .exam-block.economics {
-    background: var(--economics-bg);
-    border-color: var(--economics);
-    color: #92580a;
-  }
-
-  .exam-block.accounting {
-    background: var(--accounting-bg);
-    border-color: var(--accounting);
-    color: #c2410c;
-  }
-
-  .exam-name {
-    font-weight: 600;
-    display: block;
-  }
-
-  .exam-time {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    margin-top: 2px;
-    opacity: 0.8;
-  }
+  .exam-name { font-weight: 600; display: block; margin-bottom: 2px; }
+  .exam-time { display: flex; align-items: center; gap: 4px; opacity: 0.8; }
 
   .time-badge {
     font-size: 9px;
-    padding: 1px 4px;
+    padding: 2px 4px;
     border-radius: 3px;
     font-weight: 700;
     letter-spacing: 0.5px;
   }
+  .time-badge.am-session { background: rgba(180,83,9,0.12); color: var(--am); }
+  .time-badge.pm-session { background: rgba(71,85,105,0.12); color: var(--pm); }
+  .exam-duration { font-size: 9px; opacity: 0.7; }
 
-  .time-badge.am-session {
-    background: rgba(180,83,9,0.12);
-    color: var(--am);
+  /* Modal 弹窗样式 */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);
   }
+  .modal-content {
+    background: white; width: 90%; max-width: 600px; max-height: 85vh;
+    border-radius: 16px; padding: 24px; display: flex; flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+  .modal-header h2 { font-size: 20px; color: var(--text); }
+  .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
+  .exam-list-container { overflow-y: auto; flex: 1; margin-bottom: 16px; padding-right: 8px; }
+  
+  .exam-checkbox-item {
+    display: flex; align-items: center; padding: 10px; border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: background 0.2s;
+  }
+  .exam-checkbox-item:hover { background: var(--surface2); }
+  .exam-checkbox-item input { margin-right: 12px; width: 18px; height: 18px; cursor: pointer; }
+  .exam-meta { flex: 1; }
+  .exam-meta-title { font-weight: 600; font-size: 14px; margin-bottom: 2px;}
+  .exam-meta-details { font-size: 12px; color: var(--muted); }
+  
+  .modal-footer { display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .btn-outline { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .btn-primary { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 
-  .time-badge.pm-session {
-    background: rgba(71,85,105,0.12);
-    color: var(--pm);
+  /* PDF 导出专用容器 - 默认隐藏，不使用绝对负坐标 */
+  #pdf-export-container {
+    display: none; 
+    width: 1000px; 
+    background: white; padding: 40px; color: black;
   }
-
-  .exam-duration {
-    font-size: 9px;
-    opacity: 0.7;
-  }
-
-  .stats-bar {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    max-width: 1200px;
-    margin: 0 auto 40px;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 20px;
-    text-align: center;
-  }
-
-  .stat-num {
-    font-family: 'DM Serif Display', serif;
-    font-size: 32px;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+  .pdf-title { text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 24px; color: #1a2332; }
+  .pdf-subtitle { font-size: 20px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid #dde3ea; padding-bottom: 8px; margin-top: 32px; color: #1a2332; }
+  
+  .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 14px; }
+  .pdf-table th, .pdf-table td { border: 1px solid #dde3ea; padding: 12px; text-align: left; }
+  .pdf-table th { background: #f8fafc; font-weight: bold; }
+  
 </style>
 </head>
 <body>
@@ -293,6 +257,7 @@
 <header>
   <h1>Pearson IAL 2026</h1>
   <p>5月 / 6月 大考时间表</p>
+  <button class="action-btn" onclick="openModal()">+ 生成专属考试表格 / PDF</button>
 </header>
 
 <div class="legend">
@@ -302,237 +267,52 @@
   <div class="legend-item"><div class="legend-dot" style="background:var(--accounting)"></div> 会计学</div>
 </div>
 
-<div class="stats-bar">
-  <div class="stat-card">
-    <div class="stat-num" style="color:var(--physics)">6</div>
-    <div class="stat-label">物理科目</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num" style="color:var(--math)">13</div>
-    <div class="stat-label">数学科目</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num" style="color:var(--economics)">4</div>
-    <div class="stat-label">经济学科目</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num" style="color:var(--accounting)">2</div>
-    <div class="stat-label">会计学科目</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num" style="color:#1a2332">19</div>
-    <div class="stat-label">考试天数</div>
+<div class="calendar" id="main-calendar"></div>
+
+<div class="modal-overlay" id="examModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>选择你要参加的考试</h2>
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+    </div>
+    <div style="margin-bottom: 12px;">
+        <button class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="selectAll(true)">全选</button>
+        <button class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="selectAll(false)">清空</button>
+    </div>
+    <div class="exam-list-container" id="examCheckboxes">
+      </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn-primary" onclick="generatePDF()">确认并生成 PDF</button>
+    </div>
   </div>
 </div>
 
-<div class="calendar" id="calendar"><div class="month-section">
-    <div class="month-header">2026年 5月</div>
-    <div class="calendar-scroll-wrapper"><div class="calendar-grid"><div class="day-header">周一</div><div class="day-header">周二</div><div class="day-header">周三</div><div class="day-header">周四</div><div class="day-header">周五</div><div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell ">
-        <span class="day-num">1</span></div><div class="day-cell ">
-        <span class="day-num">4</span></div><div class="day-cell has-exam">
-        <span class="day-num">5</span><div class="exam-block accounting">
-          <span class="exam-name">Accounting U1</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">3h 00m</span>
-          </div>
-        </div></div><div class="day-cell ">
-        <span class="day-num">6</span></div><div class="day-cell has-exam">
-        <span class="day-num">7</span><div class="exam-block math">
-          <span class="exam-name">M1: Mechanics 1</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div><div class="exam-block economics">
-          <span class="exam-name">Econ U1: Markets</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 45m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">8</span><div class="exam-block math">
-          <span class="exam-name">P1: Pure Maths 1</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div><div class="exam-block physics">
-          <span class="exam-name">Phys U1: Mechanics</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell ">
-        <span class="day-num">11</span></div><div class="day-cell has-exam">
-        <span class="day-num">12</span><div class="exam-block math">
-          <span class="exam-name">P2: Pure Maths 2</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">13</span><div class="exam-block economics">
-          <span class="exam-name">Econ U2: Macro</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 45m</span>
-          </div>
-        </div><div class="exam-block physics">
-          <span class="exam-name">Phys U2: Waves &amp; Elec</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">14</span><div class="exam-block math">
-          <span class="exam-name">D1: Decision Maths 1</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell ">
-        <span class="day-num">15</span></div><div class="day-cell has-exam">
-        <span class="day-num">18</span><div class="exam-block physics">
-          <span class="exam-name">Phys U3: Practical I</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 20m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">19</span><div class="exam-block math">
-          <span class="exam-name">S1: Statistics 1</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">20</span><div class="exam-block accounting">
-          <span class="exam-name">Accounting U2</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">3h 00m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">21</span><div class="exam-block economics">
-          <span class="exam-name">Econ U3: Business</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">2h 00m</span>
-          </div>
-        </div><div class="exam-block math">
-          <span class="exam-name">FP1: Further Pure 1</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell ">
-        <span class="day-num">22</span></div><div class="day-cell ">
-        <span class="day-num">25</span></div><div class="day-cell ">
-        <span class="day-num">26</span></div><div class="day-cell ">
-        <span class="day-num">27</span></div><div class="day-cell ">
-        <span class="day-num">28</span></div><div class="day-cell ">
-        <span class="day-num">29</span></div></div></div></div><div class="month-section">
-    <div class="month-header">2026年 6月</div>
-    <div class="calendar-scroll-wrapper"><div class="calendar-grid"><div class="day-header">周一</div><div class="day-header">周二</div><div class="day-header">周三</div><div class="day-header">周四</div><div class="day-header">周五</div><div class="day-cell has-exam">
-        <span class="day-num">1</span><div class="exam-block physics">
-          <span class="exam-name">Phys U4: Fields</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 45m</span>
-          </div>
-        </div><div class="exam-block math">
-          <span class="exam-name">FP2: Further Pure 2</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">2</span><div class="exam-block math">
-          <span class="exam-name">P3: Pure Maths 3</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">3</span><div class="exam-block math">
-          <span class="exam-name">M2: Mechanics 2</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">4</span><div class="exam-block economics">
-          <span class="exam-name">Econ U4: Global Econ</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">2h 00m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">5</span><div class="exam-block physics">
-          <span class="exam-name">Phys U5: Thermo</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 45m</span>
-          </div>
-        </div><div class="exam-block math">
-          <span class="exam-name">S2: Statistics 2</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell ">
-        <span class="day-num">8</span></div><div class="day-cell has-exam">
-        <span class="day-num">9</span><div class="exam-block math">
-          <span class="exam-name">P4: Pure Maths 4</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">10</span><div class="exam-block physics">
-          <span class="exam-name">Phys U6: Practical II</span>
-          <div class="exam-time">
-            <span class="time-badge am-session">13:00</span>
-            <span class="exam-duration">1h 20m</span>
-          </div>
-        </div><div class="exam-block math">
-          <span class="exam-name">FP3: Further Pure 3</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">11</span><div class="exam-block math">
-          <span class="exam-name">M3: Mechanics 3</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell has-exam">
-        <span class="day-num">12</span><div class="exam-block math">
-          <span class="exam-name">S3: Statistics 3</span>
-          <div class="exam-time">
-            <span class="time-badge pm-session">16:00</span>
-            <span class="exam-duration">1h 30m</span>
-          </div>
-        </div></div><div class="day-cell ">
-        <span class="day-num">15</span></div><div class="day-cell ">
-        <span class="day-num">16</span></div><div class="day-cell ">
-        <span class="day-num">17</span></div><div class="day-cell ">
-        <span class="day-num">18</span></div><div class="day-cell ">
-        <span class="day-num">19</span></div><div class="day-cell ">
-        <span class="day-num">22</span></div><div class="day-cell ">
-        <span class="day-num">23</span></div><div class="day-cell ">
-        <span class="day-num">24</span></div><div class="day-cell ">
-        <span class="day-num">25</span></div><div class="day-cell ">
-        <span class="day-num">26</span></div><div class="day-cell ">
-        <span class="day-num">29</span></div><div class="day-cell ">
-        <span class="day-num">30</span></div><div class="day-cell empty"></div><div class="day-cell empty"></div><div class="day-cell empty"></div></div></div></div></div>
+<div id="pdf-export-container">
+  <div class="pdf-title">My IAL 2026 Exam Schedule</div>
+  
+  <div class="pdf-subtitle">Part 1: 考试信息列表 (List View)</div>
+  <table class="pdf-table" id="pdf-table">
+    <thead>
+      <tr>
+        <th>日期 (Date)</th>
+        <th>时间 (Time)</th>
+        <th>科目 (Subject)</th>
+        <th>考试代码与名称 (Paper)</th>
+        <th>时长 (Duration)</th>
+      </tr>
+    </thead>
+    <tbody id="pdf-table-body">
+      </tbody>
+  </table>
+
+  <div class="pdf-subtitle" style="page-break-before: always;">Part 2: 考试日历 (Calendar View)</div>
+  <div id="pdf-calendar-container" class="calendar"></div>
+</div>
 
 <script>
-const exams = [
-  // May 2026
+// 完整考试数据
+const allExams = [
   { date: '2026-05-05', subject: 'accounting', code: 'WAC11A', name: 'Accounting U1', time: '13:00', duration: '3h 00m' },
   { date: '2026-05-07', subject: 'math', code: 'WME01A', name: 'M1: Mechanics 1', time: '13:00', duration: '1h 30m' },
   { date: '2026-05-07', subject: 'economics', code: 'WEC11A', name: 'Econ U1: Markets', time: '16:00', duration: '1h 45m' },
@@ -547,7 +327,6 @@ const exams = [
   { date: '2026-05-20', subject: 'accounting', code: 'WAC12A', name: 'Accounting U2', time: '13:00', duration: '3h 00m' },
   { date: '2026-05-21', subject: 'math', code: 'WFM01A', name: 'FP1: Further Pure 1', time: '16:00', duration: '1h 30m' },
   { date: '2026-05-21', subject: 'economics', code: 'WEC13A', name: 'Econ U3: Business', time: '13:00', duration: '2h 00m' },
-  // June 2026
   { date: '2026-06-01', subject: 'physics', code: 'WPH14A', name: 'Phys U4: Fields', time: '13:00', duration: '1h 45m' },
   { date: '2026-06-01', subject: 'math', code: 'WFM02A', name: 'FP2: Further Pure 2', time: '16:00', duration: '1h 30m' },
   { date: '2026-06-02', subject: 'math', code: 'WMA13A', name: 'P3: Pure Maths 3', time: '13:00', duration: '1h 30m' },
@@ -562,9 +341,9 @@ const exams = [
   { date: '2026-06-12', subject: 'math', code: 'WST03A', name: 'S3: Statistics 3', time: '16:00', duration: '1h 30m' },
 ];
 
-function buildMonth(year, month, title) {
+function buildMonth(year, month, title, dataList) {
   const examsByDate = {};
-  exams.forEach(e => {
+  dataList.forEach(e => {
     const d = new Date(e.date);
     if (d.getFullYear() === year && d.getMonth() === month) {
       const key = d.getDate();
@@ -582,33 +361,28 @@ function buildMonth(year, month, title) {
 
   days.forEach(d => html += `<div class="day-header">${d}</div>`);
 
-  // Build array of all weekdays (Mon-Fri) in the month
-  const weekdayCells = []; // each entry: day number or 0 (empty)
-
-  // Find day of week for day 1 (0=Sun,1=Mon,...,6=Sat)
+  const weekdayCells = [];
   const firstDow = new Date(year, month, 1).getDay();
-  // Monday-based offset: Mon=0, Tue=1, ..., Fri=4, Sat=5, Sun=6
-  const firstMonOffset = (firstDow + 6) % 7; // offset from Monday
+  const firstMonOffset = (firstDow + 6) % 7; 
 
-  // Add empty cells before first day (only for Mon-Fri columns)
   const leadingEmpties = Math.min(firstMonOffset, 5);
   for (let i = 0; i < leadingEmpties; i++) weekdayCells.push(0);
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dow = new Date(year, month, day).getDay();
-    if (dow >= 1 && dow <= 5) { // Mon-Fri only
-      weekdayCells.push(day);
-    }
+    if (dow >= 1 && dow <= 5) weekdayCells.push(day);
   }
 
-  // Pad to complete last row
   while (weekdayCells.length % 5 !== 0) weekdayCells.push(0);
+
+  let hasAnyExamInMonth = false;
 
   weekdayCells.forEach(day => {
     if (day === 0) {
       html += `<div class="day-cell empty"></div>`;
     } else {
       const dayExams = examsByDate[day] || [];
+      if(dayExams.length > 0) hasAnyExamInMonth = true;
       dayExams.sort((a, b) => a.time.localeCompare(b.time));
       html += `<div class="day-cell ${dayExams.length ? 'has-exam' : ''}">
         <span class="day-num">${day}</span>`;
@@ -627,17 +401,118 @@ function buildMonth(year, month, title) {
   });
 
   html += `</div></div></div>`;
+  
+  if (!hasAnyExamInMonth && dataList.length !== allExams.length) return '';
   return html;
 }
 
-const cal = document.getElementById('calendar');
-cal.innerHTML = buildMonth(2026, 4, '2026年 5月') + buildMonth(2026, 5, '2026年 6月');
+function renderMainCalendar() {
+  const cal = document.getElementById('main-calendar');
+  cal.innerHTML = buildMonth(2026, 4, '2026年 5月', allExams) + buildMonth(2026, 5, '2026年 6月', allExams);
+}
+renderMainCalendar();
 
-// fix stats - count unique exam days
-const uniqueDays = new Set(exams.map(e => e.date));
-document.querySelectorAll('.stat-num')[4].textContent = uniqueDays.size;
-document.querySelectorAll('.stat-num')[4].style.color = '#1a2332';
+function openModal() {
+  const container = document.getElementById('examCheckboxes');
+  container.innerHTML = ''; 
+  
+  const sortedExams = [...allExams].sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  sortedExams.forEach((exam) => {
+    container.innerHTML += `
+      <label class="exam-checkbox-item">
+        <input type="checkbox" value="${exam.code}" class="exam-selector">
+        <div class="exam-meta">
+          <div class="exam-meta-title">${exam.name} (${exam.code})</div>
+          <div class="exam-meta-details">${exam.date} | ${exam.time} | ${exam.duration}</div>
+        </div>
+      </label>
+    `;
+  });
+  
+  document.getElementById('examModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('examModal').style.display = 'none';
+}
+
+function selectAll(check) {
+  const checkboxes = document.querySelectorAll('.exam-selector');
+  checkboxes.forEach(cb => cb.checked = check);
+}
+
+function generatePDF() {
+  const selectedCodes = Array.from(document.querySelectorAll('.exam-selector:checked')).map(cb => cb.value);
+  
+  if (selectedCodes.length === 0) {
+    alert("请至少选择一门考试！");
+    return;
+  }
+  
+  const selectedExams = allExams.filter(exam => selectedCodes.includes(exam.code));
+  
+  // 渲染表格
+  const tbody = document.getElementById('pdf-table-body');
+  tbody.innerHTML = '';
+  selectedExams.sort((a, b) => {
+    if (a.date === b.date) return a.time.localeCompare(b.time);
+    return new Date(a.date) - new Date(b.date);
+  });
+  
+  selectedExams.forEach(exam => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${exam.date}</td>
+        <td>${exam.time}</td>
+        <td style="text-transform: capitalize;">${exam.subject}</td>
+        <td><strong>${exam.code}</strong> - ${exam.name}</td>
+        <td>${exam.duration}</td>
+      </tr>
+    `;
+  });
+  
+  // 渲染日历
+  const pdfCal = document.getElementById('pdf-calendar-container');
+  pdfCal.innerHTML = buildMonth(2026, 4, '2026年 5月', selectedExams) + buildMonth(2026, 5, '2026年 6月', selectedExams);
+  
+  closeModal();
+  
+  const btn = document.querySelector('.action-btn');
+  const originalText = btn.innerText;
+  btn.innerText = "⏳ 正在生成 PDF，请稍候...";
+  btn.style.opacity = '0.7';
+  
+  const element = document.getElementById('pdf-export-container');
+  
+  // 关键修复：临时将容器放到可视流的最底层，避免截图捕捉到负坐标导致白屏
+  element.style.display = 'block';
+  element.style.position = 'absolute';
+  element.style.left = '0';
+  element.style.top = '0';
+  element.style.zIndex = '-9999';
+
+  const opt = {
+    margin:       10, 
+    filename:     'My_IAL_2026_Schedule.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { 
+        scale: 2, 
+        useCORS: true,
+        windowWidth: 1000 // 关键修复2：强制渲染宽度，防止手机端变窄导致错位
+    }, 
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save().then(() => {
+    btn.innerText = originalText;
+    btn.style.opacity = '1';
+    
+    // 生成完毕后重新隐藏
+    element.style.display = 'none';
+  });
+}
 </script>
 
-
-</body></html>
+</body>
+</html>
